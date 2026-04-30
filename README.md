@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Habit Tracker PWA
 
-## Getting Started
+A mobile-first Progressive Web App for tracking daily habits, built with Next.js App Router, TypeScript, Tailwind CSS, and localStorage persistence.
 
-First, run the development server:
+---
 
+## Project Overview
+
+Habit Tracker allows users to:
+- Sign up, log in, and log out (local auth — no remote service)
+- Create, edit, and delete habits
+- Mark habits complete for today and unmark them
+- See a live current streak count per habit
+- Have all data persist across page reloads
+- Install the app as a PWA and use a cached app shell offline
+
+---
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js 18+
+- npm 9+
+
+### Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install Playwright browsers
+```bash
+npx playwright install chromium
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Run Instructions
 
-## Learn More
+### Development
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Production build
+```bash
+npm run build
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Test Instructions
 
-## Deploy on Vercel
+### All tests
+```bash
+npm test
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Unit tests only
+```bash
+npm run test:unit
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Integration tests only
+```bash
+npm run test:integration
+```
+
+### E2E tests only
+```bash
+npm run test:e2e
+```
+
+---
+
+## Local Persistence Structure
+
+All data is stored in localStorage under three fixed keys:
+
+| Key | Shape | Purpose |
+|---|---|---|
+| `habit-tracker-users` | `User[]` | Registered user accounts |
+| `habit-tracker-session` | `Session` or `null` | Active logged-in session |
+| `habit-tracker-habits` | `Habit[]` | All habits across all users |
+
+On dashboard load, habits are filtered by `userId` from the active session so users only see their own habits.
+
+---
+
+## PWA Support
+
+The app registers `/public/sw.js` from the client via a `ServiceWorkerRegistration` component.
+
+The service worker:
+- **Install**: caches the app shell routes
+- **Activate**: purges stale caches
+- **Fetch**: serves cache first, falls back to network, falls back to `/` when offline
+
+`/public/manifest.json` declares name, display mode, theme color, start URL, and icons at 192×192 and 512×512.
+
+---
+
+## Trade-offs and Limitations
+
+- Passwords stored as plaintext in localStorage — acceptable for local demo, not for production
+- Sessions are client-only — protected routes use a client-side guard, not middleware
+- Only `daily` frequency is implemented as required by the spec
+- No cross-device sync — data is per-browser localStorage
+
+---
+
+## Test File Map
+
+| Test file | Behavior verified |
+|---|---|
+| `tests/unit/slug.test.ts` | `getHabitSlug` — slug generation from habit names |
+| `tests/unit/validators.test.ts` | `validateHabitName` — empty, too long, valid/trimmed |
+| `tests/unit/streaks.test.ts` | `calculateCurrentStreak` — empty, today missing, consecutive, duplicates, gaps |
+| `tests/unit/habits.test.ts` | `toggleHabitCompletion` — add, remove, immutability, no duplicates |
+| `tests/integration/auth-flow.test.tsx` | SignupForm and LoginForm — success, error states, session creation |
+| `tests/integration/habit-form.test.tsx` | HabitForm and HabitCard — validation, create, edit, delete confirmation, streak toggle |
+| `tests/e2e/app.spec.ts` | Full user journeys — splash, auth, CRUD, streak, persistence, logout, offline |
