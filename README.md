@@ -109,6 +109,28 @@ The service worker:
 
 ---
 
+---
+
+## Mapping to Technical Requirements Document
+
+| TRD Section | Requirement | Implementation |
+|---|---|---|
+| Section 4 — Routes | `/`, `/login`, `/signup`, `/dashboard` | `src/app/page.tsx`, `src/app/login/page.tsx`, `src/app/signup/page.tsx`, `src/app/dashboard/page.tsx` |
+| Section 4 — Route behavior | Splash screen on `/`, redirects based on session | `src/app/page.tsx` — 1200ms delay then checks session |
+| Section 4 — Protected route | `/dashboard` redirects to `/login` if no session | `src/components/shared/ProtectedRoute.tsx` |
+| Section 5 — Persistence | localStorage with three required keys | `src/lib/storage.ts`, `src/lib/constants.ts` |
+| Section 8 — Types | `User`, `Session`, `Habit` types | `src/types/auth.ts`, `src/types/habit.ts` |
+| Section 9 — Utilities | `getHabitSlug`, `validateHabitName`, `calculateCurrentStreak`, `toggleHabitCompletion` | `src/lib/slug.ts`, `src/lib/validators.ts`, `src/lib/streaks.ts`, `src/lib/habits.ts` |
+| Section 10 — UI Contract | All required `data-testid` attributes | All component files in `src/components/` |
+| Section 11 — Auth behavior | Signup, login, logout with exact error messages | `src/lib/auth.ts`, `src/components/auth/` |
+| Section 12 — Habit behavior | Create, edit, delete, complete with confirmation | `src/app/dashboard/page.tsx`, `src/components/habits/` |
+| Section 13 — PWA | manifest.json, sw.js, icons, SW registration | `public/manifest.json`, `public/sw.js`, `public/icons/`, `src/components/shared/ServiceWorkerRegistration.tsx` |
+| Section 16 — Tests | All required test files with exact titles | `tests/unit/`, `tests/integration/`, `tests/e2e/` |
+| Section 17 — Coverage | 80% line coverage for `src/lib` | 85.71% achieved — verified with `npm run test:unit` |
+| Section 18 — Scripts | All 7 required package scripts | `package.json` |
+
+---
+
 ## Test File Map
 
 | Test file | Behavior verified |
